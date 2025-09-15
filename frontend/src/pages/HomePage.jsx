@@ -18,7 +18,7 @@ import { capitalize } from "../lib/utils";
 
 
 import FriendCard, { getLanguageFlag } from "../components/FriendCard";
-import NoFriendsFound from "../components/NoFriendsFound";
+import NoFriendsFound from '../components/NoFriendsFound'
 
 const HomePage = () => {
   const queryClient = useQueryClient();
