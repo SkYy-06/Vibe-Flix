@@ -19,7 +19,7 @@ const Navbar = () => {
               className="text-2xl font-bold font-mono
               bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
             >
-              Streamify
+              Vibe-Flix
             </span>
           </Link>
         </div>
