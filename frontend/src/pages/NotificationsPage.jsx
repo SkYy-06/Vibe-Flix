@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { acceptFriendRequest, getFriendRequests } from "../lib/api";
+import {
+  acceptFriendRequest,
+  getFriendRequests,
+  rejectFriendRequest,
+} from "../lib/api";
 import {
   BellIcon,
   ClockIcon,
@@ -16,13 +20,25 @@ const NotificationsPage = () => {
     queryFn: getFriendRequests,
   });
 
-  const { mutate: acceptRequestMutation, isPending } = useMutation({
-    mutationFn: acceptFriendRequest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["friends"] });
-    },
-  });
+  const { mutate: acceptRequestMutation, isPending: isAccepting } = useMutation(
+    {
+      mutationFn: acceptFriendRequest,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
+        queryClient.invalidateQueries({ queryKey: ["friends"] });
+      },
+    }
+  );
+
+  const { mutate: rejectRequestMutation, isPending: isRejecting } = useMutation(
+    {
+      mutationFn: rejectFriendRequest,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
+        queryClient.invalidateQueries({ queryKey: ["friends"] });
+      },
+    }
+  );
 
   const incomingRequests = friendRequests?.incomingReqs || [];
   const acceptedRequests = friendRequests?.acceptedReqs || [];
@@ -61,7 +77,7 @@ const NotificationsPage = () => {
                           <div className="flex items-center gap-3">
                             <div className="avatar w-14 h-14 rounded-full bg-base-300">
                               <img
-                                src={request.sender.profilePic}
+                                src={request.sender.profilePic || "/boy.png"}
                                 alt={request.sender.fullName}
                               />
                             </div>
@@ -80,13 +96,23 @@ const NotificationsPage = () => {
                             </div>
                           </div>
 
-                          <button
-                            className="btn btn-primary btn-sm"
-                            onClick={() => acceptRequestMutation(request._id)}
-                            disabled={isPending}
-                          >
-                            Accept
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              className="btn btn-success btn-sm"
+                              onClick={() => acceptRequestMutation(request._id)}
+                              disabled={isAccepting}
+                            >
+                              Accept
+                            </button>
+
+                            <button
+                              className="btn btn-error btn-sm"
+                              onClick={() => rejectRequestMutation(request._id)}
+                              disabled={isRejecting}
+                            >
+                              Reject
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -113,7 +139,9 @@ const NotificationsPage = () => {
                         <div className="flex items-start gap-3">
                           <div className="avatar mt-1 size-10 rounded-full">
                             <img
-                              src={notification.recipient.profilePic}
+                              src={
+                                notification.recipient.profilePic || "/boy.png"
+                              }
                               alt={notification.recipient.fullName}
                             />
                           </div>

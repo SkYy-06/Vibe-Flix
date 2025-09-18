@@ -16,10 +16,8 @@ import {
 
 import { capitalize } from "../lib/utils";
 
-
 import FriendCard, { getLanguageFlag } from "../components/FriendCard";
-import NoFriendsFound from '../components/NofriendsFound'
-
+import NoFriendsFound from "../components/NofriendsFound";
 
 const HomePage = () => {
   const queryClient = useQueryClient();
@@ -50,7 +48,9 @@ const HomePage = () => {
     const outgoingIds = new Set();
     if (outgoingFriendReqs && outgoingFriendReqs.length > 0) {
       outgoingFriendReqs.forEach((req) => {
-        outgoingIds.add(req.recipient._id);
+        if (req.recipient) {
+          outgoingIds.add(req.recipient._id);
+        }
       });
       setOutgoingRequestsIds(outgoingIds);
     }
@@ -77,9 +77,15 @@ const HomePage = () => {
           <NoFriendsFound />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {friends.map((friend) => (
-              <FriendCard key={friend._id} friend={friend} />
-            ))}
+            {friends.map((friend, index) =>
+              friend ? (
+                <FriendCard key={friend._id} friend={friend} />
+              ) : (
+                <div key={index} className="card bg-base-200 p-4">
+                  <p className="text-sm opacity-70">[Deleted User]</p>
+                </div>
+              )
+            )}
           </div>
         )}
 
@@ -113,7 +119,15 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendedUsers.map((user) => {
+              {recommendedUsers.map((user, index) => {
+                if (!user) {
+                  return (
+                    <div key={index} className="card bg-base-200 p-4">
+                      <p className="text-sm opacity-70">[Deleted User]</p>
+                    </div>
+                  );
+                }
+
                 const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
 
                 return (

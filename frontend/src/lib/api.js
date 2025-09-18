@@ -77,8 +77,15 @@ export async function acceptFriendRequest(requestId) {
   return response.data;
 }
 
+// Reject Friend Request
 
+export async function rejectFriendRequest(rejectId) {
+  const response = await axiosInstance.put(
+    `/users/friend-request/${rejectId}/reject`
+  );
 
+  return response.data;
+}
 
 // Get Stream Token
 
