@@ -41,8 +41,9 @@ export async function sendFriendRequest(req, res) {
     const myId = req.user.id;
     const { id: recipientId } = req.params;
 
-    // prevent sending req to yourself
+    // prevent sending request to yourself
     if (myId === recipientId) {
+       console.log("❌ Tried to send request to self");
       return res
         .status(400)
         .json({ message: "You can't send friend request to yourself" });
@@ -53,24 +54,31 @@ export async function sendFriendRequest(req, res) {
       return res.status(404).json({ message: "Recipient not found" });
     }
 
-    // check if user is already friends
-    if (recipient.friends.includes(myId)) {
+    // check if already friends
+    if (
+      recipient.friends.some(
+        (friendId) => friendId.toString() === myId.toString()
+      )
+    ) {
+       console.log("❌ Already friends", recipient.friends, "includes", myId);
       return res
         .status(400)
         .json({ message: "You are already friends with this user" });
     }
 
-    // check if a req already exists
+    // check if a pending request already exists
     const existingRequest = await FriendRequest.findOne({
       $or: [
-        { sender: myId, recipient: recipientId },
-        { sender: recipientId, recipient: myId },
+        { sender: myId, recipient: recipientId, status: "pending" },
+        { sender: recipientId, recipient: myId, status: "pending" },
       ],
     });
 
     if (existingRequest) {
+       console.log("❌ Existing pending request found:", existingRequest);
       return res.status(400).json({
-        message: "A friend request already exists between you and this user",
+        message:
+          "A pending friend request already exists between you and this user",
       });
     }
 
@@ -85,6 +93,7 @@ export async function sendFriendRequest(req, res) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
+
 
 export async function acceptFriendRequest(req, res) {
   try {
@@ -133,23 +142,23 @@ export async function rejectFriendRequest(req, res) {
       return res.status(404).json({ message: "Friend request not found" });
     }
 
-    if(friendRequest.recipient.toString() !== req.user.id){
+    // Only recipient can reject
+    if (friendRequest.recipient.toString() !== req.user.id) {
       return res
-      .status(403)
-      .json({message : "You are not authorized to reject this request"})
+        .status(403)
+        .json({ message: "You are not authorized to reject this request" });
     }
 
-  friendRequest.status = "rejected";
-  await friendRequest.save();
-  return res.json({ message: "Friend request rejected" });
+    // Delete the friend request so it can be sent again
+    await FriendRequest.findByIdAndDelete(rejectId);
 
-
-
+    return res.json({ message: "Friend request rejected and deleted" });
   } catch (error) {
-    console.log("Error in rejectFriendRequest controller" , error.messsage)
-    res.status(500).json({message : "Internal server error"})
+    console.log("Error in rejectFriendRequest controller", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 }
+
 
 export async function getFriendRequests(req, res) {
   try {
