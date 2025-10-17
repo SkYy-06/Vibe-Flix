@@ -1,5 +1,5 @@
 import { ShipWheelIcon } from "lucide-react";
-import  { useState } from "react";
+import { useState } from "react";
 
 import { Link } from "react-router";
 import useLogin from "../hooks/useLogin";
@@ -8,11 +8,11 @@ const LoginPage = () => {
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
+   
   });
   // const queryClient = useQueryClient();
- 
 
-  const {isPending , error , loginMutation} = useLogin()
+  const { isPending, error, loginMutation } = useLogin();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -84,6 +84,8 @@ const LoginPage = () => {
                       required
                     />
                   </div>
+
+                
 
                   <button
                     type="submit"

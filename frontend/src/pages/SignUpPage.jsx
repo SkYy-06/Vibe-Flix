@@ -1,6 +1,7 @@
 import  { useState } from "react";
 import { ShipWheelIcon } from "lucide-react";
 import { Link } from "react-router";
+import toast from "react-hot-toast";
 
 import useSignup from "../hooks/useSignup.js";
 
@@ -11,6 +12,7 @@ const SignUpPage = () => {
     fullName: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   // This is how we did it first time without using our custom hook
@@ -33,6 +35,10 @@ const SignUpPage = () => {
 
   const handleSignup = (e) => {
     e.preventDefault();
+     if (signupData.password !== signupData.confirmPassword) {
+      toast.error("Passwords do not match");
+       return;
+     }
     signupMutation(signupData);
   };
 
@@ -135,6 +141,26 @@ const SignUpPage = () => {
                     </p>
                   </div>
 
+                  <div className="form-control w-full">
+                    <label className="label">
+                      <span className="label-text">Confirm Password</span>
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="*******"
+                      className="input input-bordered w-full"
+                      value={signupData.confirmPassword}
+                      onChange={(e) =>
+                        setSignupData({
+                          ...signupData,
+                          confirmPassword: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                    
+                  </div>
+
                   <div className="form-control">
                     <label className="label cursor-pointer justify-start gap-2">
                       <input
@@ -157,15 +183,15 @@ const SignUpPage = () => {
                 </div>
 
                 <button className="btn btn-primary w-full " type="submit">
-                {isPending ?  (
-                  <>
-                  <span className="loading loading-spinner loading-xs">
-                    Loading...
-                  </span>
-                  </>
-                ) : (
-                  "Create Account"
-                )}
+                  {isPending ? (
+                    <>
+                      <span className="loading loading-spinner loading-xs">
+                        Loading...
+                      </span>
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
                 </button>
 
                 <div className="text-center mt-4">
